@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @Configuration
 @EntityScan("com.py.entity")
 @EnableJpaRepositories(basePackages = "com.py.repository")
-public class ServiceConfiguration {
+public class ServiceConfig {
 
 }
