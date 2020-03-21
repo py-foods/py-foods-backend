@@ -1,1 +1,1 @@
-web: java -Dserver.port=$PORT -jar target/py-api-0.0.1-SNAPSHOT.jar
+web: java -Dserver.port=$PORT -jar py-api/target/py-api-0.0.1-SNAPSHOT.jar
