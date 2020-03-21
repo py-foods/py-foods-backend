@@ -2,6 +2,7 @@ package com.py.api.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -25,30 +26,33 @@ public class ProductController {
 	private ProductService productService;
 
 	@GetMapping(path = "view", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ResponseWrapper> getProduct(@RequestParam(value = "id", required = false) Integer id) {
+	public ResponseEntity<ResponseWrapper> getProduct(@RequestParam(value = "id", required = false) Long id) {
 
-		List<Product> products = productService.findAll();
-		Product product = products.get(0);
+		Optional<Product> productOpt = productService.findById(id);
+		if (!productOpt.isPresent()) {
+			return ResponseEntity.badRequest().build();
+		}
+
+		Product product = productOpt.get();
 		ProductDTO productDTO = new ProductDTO();
 		productDTO.setId(product.getId());
 		productDTO.setName(product.getName());
 		productDTO.setSalePrice(product.getPrice());
 		productDTO.setSize(product.getSize());
 		productDTO.setRating(5);
-		productDTO.setProductRefs(buidProductRef(product, 3));
+
+		List<Product> productRefs = productService.findReferenceByCode(product.getCode());
+		List<ProductRefDTO> productRefDtos = new ArrayList<>();
+
+		productRefs.forEach(v -> {
+			ProductRefDTO refDto = new ProductRefDTO();
+			refDto.setName(v.getName());
+			refDto.setCurrency(v.getCurrency());
+			refDto.setCostPrice(v.getPrice());
+			refDto.setDiscountType(v.getDiscountType());
+			productRefDtos.add(refDto);
+		});
+		productDTO.setProductRefs(productRefDtos);
 		return ResponseEntity.ok(new ResponseWrapper(200, productDTO));
-	}
-
-	private List<ProductRefDTO> buidProductRef(Product product, int size) {
-
-		List<ProductRefDTO> productDTORef = new ArrayList<>();
-		for (int i = 0; i < size; i++) {
-			ProductRefDTO ref = new ProductRefDTO();
-			ref.setName(product.getName() + (i + 1));
-			ref.setSalePrice(product.getPrice());
-			ref.setRating(i + 2);
-			productDTORef.add(ref);
-		}
-		return productDTORef;
 	}
 }

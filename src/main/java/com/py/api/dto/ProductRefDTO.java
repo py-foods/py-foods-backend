@@ -20,9 +20,9 @@ public class ProductRefDTO {
 	@JsonProperty("sale_price")
 	private BigDecimal salePrice;
 	@JsonProperty("cost_price")
-	private Integer costPrice;
+	private BigDecimal costPrice;
 	@JsonProperty("discount")
-	private Integer discount;
+	private Float discount;
 	@JsonProperty("discount_type")
 	private String discountType;
 	@JsonProperty("currency")
@@ -73,22 +73,22 @@ public class ProductRefDTO {
 	}
 
 	@JsonProperty("cost_price")
-	public Integer getCostPrice() {
+	public BigDecimal getCostPrice() {
 		return costPrice;
 	}
 
 	@JsonProperty("cost_price")
-	public void setCostPrice(Integer costPrice) {
+	public void setCostPrice(BigDecimal costPrice) {
 		this.costPrice = costPrice;
 	}
 
 	@JsonProperty("discount")
-	public Integer getDiscount() {
+	public Float getDiscount() {
 		return discount;
 	}
 
 	@JsonProperty("discount")
-	public void setDiscount(Integer discount) {
+	public void setDiscount(Float discount) {
 		this.discount = discount;
 	}
 
