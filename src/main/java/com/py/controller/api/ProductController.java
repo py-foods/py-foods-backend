@@ -1,4 +1,4 @@
-package com.py.api.controller;
+package com.py.controller.api;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.py.api.dto.ProductDTO;
-import com.py.api.dto.ProductRefDTO;
-import com.py.api.dto.ResponseWrapper;
+import com.py.dto.api.ProductDTO;
+import com.py.dto.api.ProductRefDTO;
+import com.py.dto.api.ResponseWrapper;
 import com.py.entity.Product;
 import com.py.service.ProductService;
 

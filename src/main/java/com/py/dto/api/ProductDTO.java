@@ -1,4 +1,4 @@
-package com.py.api.dto;
+package com.py.dto.api;
 
 import java.math.BigDecimal;
 import java.util.List;

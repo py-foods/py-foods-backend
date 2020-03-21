@@ -1,4 +1,4 @@
-package com.py.api.dto;
+package com.py.dto.api;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
