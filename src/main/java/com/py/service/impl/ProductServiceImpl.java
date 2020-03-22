@@ -52,7 +52,7 @@ public class ProductServiceImpl implements ProductService {
 		}
 
 		Product product = productOpt.get();
-		ProductDTO productDTO = apply(product, 10);
+		ProductDTO productDTO = buildDTO(product, 10);
 		// Get pictures for product
 		List<Picture> pictures = pictureRepository.findByProductId(product.getId());
 		productDTO.setPictures(pictures.stream().map(Picture::getName).collect(Collectors.toList()));
@@ -60,12 +60,12 @@ public class ProductServiceImpl implements ProductService {
 		// Finding reference product for current product
 		List<Product> products = productRepository.findReferByCategoryId(product.getId(), product.getCategoryId(), pageable);
 		List<ProductDTO> productDTOs = new ArrayList<>();
-		products.forEach(v -> productDTOs.add(apply(v, 5)));
+		products.forEach(v -> productDTOs.add(buildDTO(v, 5)));
 		productDTO.setProductRefs(productDTOs);
 		return Optional.of(productDTO);
 	}
 
-	private ProductDTO apply(Product product, int sold) {
+	private ProductDTO buildDTO(Product product, int sold) {
 		ProductDTO dto = modelMapper.map(product, ProductDTO.class);
 		dto.setSalePrice(product.getCostPrice());
 		dto.setSold(sold);
