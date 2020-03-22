@@ -9,7 +9,7 @@ import java.util.List;
 public class ResponseModal {
 	private List<ErrorField> errors = new LinkedList<>();
 	private int code;
-	private String msg;
+	private String message;
 
 	/**
 	 *
@@ -24,7 +24,7 @@ public class ResponseModal {
 	 */
 	public ResponseModal(String msg) {
 		this.code = 200;
-		this.msg = msg;
+		this.message = msg;
 	}
 
 	/**
@@ -34,7 +34,7 @@ public class ResponseModal {
 	 */
 	public ResponseModal(int code, String msg) {
 		this.code = code;
-		this.msg = msg;
+		this.message = msg;
 	}
 
 	public List<ErrorField> getErrors() {
@@ -53,11 +53,11 @@ public class ResponseModal {
 		this.code = code;
 	}
 
-	public String getMsg() {
-		return msg;
+	public String getMessage() {
+		return message;
 	}
 
-	public void setMsg(String msg) {
-		this.msg = msg;
+	public void setMessage(String msg) {
+		this.message = msg;
 	}
 }

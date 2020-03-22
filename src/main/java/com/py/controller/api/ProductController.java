@@ -1,23 +1,25 @@
 package com.py.controller.api;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.py.constant.GlobalConstant;
 import com.py.dto.api.ProductDTO;
-import com.py.dto.api.ProductRefDTO;
 import com.py.dto.api.ResponseWrapper;
-import com.py.entity.Product;
+import com.py.exception.ResourceNotFoundException;
 import com.py.service.ProductService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping(path = "products")
 public class ProductController {
@@ -25,34 +27,20 @@ public class ProductController {
 	@Autowired
 	private ProductService productService;
 
-	@GetMapping(path = "view", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ResponseWrapper> getProduct(@RequestParam(value = "id", required = false) Long id) {
+	@GetMapping(path = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<ResponseWrapper> getProduct(@PathVariable(value = "id") Optional<Long> productId)
+			throws Exception {
 
-		Optional<Product> productOpt = productService.findById(id);
-		if (!productOpt.isPresent()) {
+		if (!productId.isPresent()) {
+			log.error("product id {} is not present", productId);
 			return ResponseEntity.badRequest().build();
 		}
 
-		Product product = productOpt.get();
-		ProductDTO productDTO = new ProductDTO();
-		productDTO.setId(product.getId());
-		productDTO.setName(product.getName());
-		productDTO.setSalePrice(product.getPrice());
-		productDTO.setSize(product.getSize());
-		productDTO.setRating(5);
-
-		List<Product> productRefs = productService.findReferenceByCode(product.getCode());
-		List<ProductRefDTO> productRefDtos = new ArrayList<>();
-
-		productRefs.forEach(v -> {
-			ProductRefDTO refDto = new ProductRefDTO();
-			refDto.setName(v.getName());
-			refDto.setCurrency(v.getCurrency());
-			refDto.setCostPrice(v.getPrice());
-			refDto.setDiscountType(v.getDiscountType());
-			productRefDtos.add(refDto);
-		});
-		productDTO.setProductRefs(productRefDtos);
-		return ResponseEntity.ok(new ResponseWrapper(200, productDTO));
+		Optional<ProductDTO> productDTO = productService.findProductDetailById(productId.get(),
+				PageRequest.of(0, GlobalConstant.PRODUCTS_ON_REFERENCE_SIZE));
+		if (!productDTO.isPresent()) {
+			throw new ResourceNotFoundException("product not found!!!");
+		}
+		return ResponseEntity.ok(new ResponseWrapper(true, productDTO.get()));
 	}
 }

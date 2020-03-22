@@ -3,31 +3,19 @@ package com.py.service;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
+import com.py.dto.api.ProductDTO;
 import com.py.entity.Product;
-import com.py.repository.ProductRepository;
 
-@Service
-public class ProductService {
+public interface ProductService {
 
-	@Autowired
-	private ProductRepository productRepository;
+	public List<Product> findAll();
 
-	public List<Product> findAll() {
-		return productRepository.findAll();
-	}
+	public Optional<Product> findById(long id);
 
-	public Optional<Product> findById(Long id) {
-		return productRepository.findById(id);
-	}
+	public Page<Product> findByCategory(long code, Pageable pageable);
 
-	public List<Product> findReferenceByCode(String code) {
-		Product product = new Product();
-		product.setProductRef(code);
-		Example<Product> exp = Example.of(product);
-		return productRepository.findAll(exp);
-	}
+	public Optional<ProductDTO> findProductDetailById(long id, Pageable pageable);
 }

@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class PictureServiceImpl implements PictureService {
 
-	private static Cloudinary cloudinary;
+	private Cloudinary cloudinary;
 
 	@Value("${cloudinary.cloud_name}")
 	private String cloudName;
@@ -40,7 +40,7 @@ public class PictureServiceImpl implements PictureService {
 
 	@PostConstruct
 	public void init() {
-		PictureServiceImpl.cloudinary = new Cloudinary(
+		cloudinary = new Cloudinary(
 				ObjectUtils.asMap("cloud_name", cloudName, "api_key", apiKey, "api_secret", apiSecret));
 		cloudinary.api();
 	}

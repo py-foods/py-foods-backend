@@ -7,6 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class ResponseWrapper {
 
-	private int code;
+	private boolean success;
 	private Object data;
 }
