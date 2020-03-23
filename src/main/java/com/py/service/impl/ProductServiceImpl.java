@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.py.dto.mapper.ProductMapper;
+import com.py.exception.BadRequestException;
+import com.py.util.AppUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -30,6 +33,12 @@ public class ProductServiceImpl implements ProductService {
 
 	@Autowired
 	private ModelMapper modelMapper;
+
+	@Autowired
+	private AppUtils appUtils;
+
+	@Autowired
+	private ProductMapper productMapper;
 
 	public List<Product> findAll() {
 		return productRepository.findAll();
@@ -63,6 +72,14 @@ public class ProductServiceImpl implements ProductService {
 		products.forEach(v -> productDTOs.add(buildDTO(v, 5)));
 		productDTO.setProductRefs(productDTOs);
 		return Optional.of(productDTO);
+	}
+
+	@Override
+	public Page<ProductDTO> productList(Long categoryId, Integer page, Integer size, String field, Boolean isDesc) {
+		if (categoryId == null) {
+			throw new BadRequestException("Category is null"); // for test ... will be remove in feature
+		}
+		return productRepository.findAllByCategoryId(categoryId, appUtils.getPageable(page, size, null, null)).map(productMapper::toDTO);
 	}
 
 	private ProductDTO buildDTO(Product product, int sold) {

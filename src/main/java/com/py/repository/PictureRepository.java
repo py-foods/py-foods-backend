@@ -8,5 +8,5 @@ import com.py.entity.Picture;
 
 public interface PictureRepository extends JpaRepository<Picture, Long> {
 	
-	public List<Picture> findByProductId(Long id);
+	List<Picture> findByProductId(Long id);
 }

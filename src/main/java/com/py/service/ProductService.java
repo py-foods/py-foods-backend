@@ -11,11 +11,13 @@ import com.py.entity.Product;
 
 public interface ProductService {
 
-	public List<Product> findAll();
+	List<Product> findAll();
 
-	public Optional<Product> findById(long id);
+	Optional<Product> findById(long id);
 
-	public Page<Product> findByCategory(long code, Pageable pageable);
+	Page<Product> findByCategory(long code, Pageable pageable);
 
-	public Optional<ProductDTO> findProductDetailById(long id, Pageable pageable);
+	Optional<ProductDTO> findProductDetailById(long id, Pageable pageable);
+
+	Page<ProductDTO> productList(Long categoryId, Integer page, Integer size, String field, Boolean isDesc);
 }
