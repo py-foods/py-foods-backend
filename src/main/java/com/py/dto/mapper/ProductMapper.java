@@ -1,3 +1,4 @@
+/*
 package com.py.dto.mapper;
 
 import com.py.dto.api.ProductDTO;
@@ -8,10 +9,6 @@ import org.mapstruct.Named;
 
 import java.util.List;
 
-/**
- * @author vmdat
- * @create 23/03/2020
- */
 @Mapper(componentModel = "spring")
 @Named("ProductMapper")
 public abstract class ProductMapper {
@@ -24,3 +21,5 @@ public abstract class ProductMapper {
     public abstract List<ProductDTO> toDTOs(List<Product> components);
 
 }
+
+*/

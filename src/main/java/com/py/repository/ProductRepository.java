@@ -14,12 +14,14 @@ import com.py.entity.Product;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-	@Query(value = "select p.* from product p, category c where p.category_id = c.id and c.id = :categoryId and p.id <> :productId", nativeQuery = true)
-	List<Product> findReferByCategoryId(
-			@Param("productId") long productId,
-			@Param("categoryId") long categoryId, Pageable pageable);
+	@Query(value = "select * from product p, category c where p.category_id = c.id and c.id = :categoryId and p.id <> :productId", nativeQuery = true)
+	public List<Product> findReferByCategoryId(
+			@Param("productId") Long productId,
+			@Param("categoryId") Long categoryId, Pageable pageable);
+
+	@Query(value = "select * from product p where p.rating > :level and p.is_active = 1", nativeQuery = true)
+	public Page<Product> findByRating(@Param("level") Integer level, Pageable pageable);
 
 	Page<Product> findAllByCategoryId(Long categoryId, Pageable pageable);
 
-	
 }

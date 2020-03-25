@@ -8,8 +8,6 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,8 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class PictureServiceImpl implements PictureService {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(PictureServiceImpl.class);
 
 	private Cloudinary cloudinary;
 
@@ -60,7 +56,7 @@ public class PictureServiceImpl implements PictureService {
 			picture.setUrl((String) result.get("url"));
 			picture.setName((String) result.get("public_id"));
 		} catch (IOException e) {
-			LOGGER.error("upload image got error: ", e);
+			log.error("upload image got error: ", e);
 		}
 		return picture;
 	}

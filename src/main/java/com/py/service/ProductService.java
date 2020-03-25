@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.py.dto.api.FavouriteDTO;
 import com.py.dto.api.ProductDTO;
 import com.py.entity.Product;
 
@@ -13,11 +14,19 @@ public interface ProductService {
 
 	List<Product> findAll();
 
-	Optional<Product> findById(long id);
+	Optional<Product> findById(Long id);
 
-	Page<Product> findByCategory(long code, Pageable pageable);
+	Page<Product> findByCategory(Long code, Pageable pageable);
 
-	Optional<ProductDTO> findProductDetailById(long id, Pageable pageable);
+	Optional<ProductDTO> findProductDetailById(Long id, Pageable pageable);
+
+	/**
+	 * Find all products with rating > 4
+	 * 
+	 * @param pageable
+	 * @return
+	 */
+	Optional<FavouriteDTO> findFavouriteProducts(Pageable pageable);
 
 	Page<ProductDTO> productList(Long categoryId, Integer page, Integer size, String field, Boolean isDesc);
 }
