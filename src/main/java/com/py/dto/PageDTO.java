@@ -15,4 +15,6 @@ public class PageDTO implements Serializable {
 	private int offset;
 	private int totalPages;
 	private long totalElements;
+	private boolean hasNext;
+	private boolean hasPrevious;
 }

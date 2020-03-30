@@ -1,25 +1,21 @@
-/*
+
 package com.py.dto.mapper;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.py.dto.api.ProductDTO;
 import com.py.entity.Product;
-import org.mapstruct.IterableMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Named;
 
-import java.util.List;
+@Component
+public class ProductMapper {
 
-@Mapper(componentModel = "spring")
-@Named("ProductMapper")
-public abstract class ProductMapper {
+	@Autowired
+	private ModelMapper modelMapper;
 
-    @Named("ToProductDTO")
-    public abstract ProductDTO toDTO (Product component);
-
-    @IterableMapping(qualifiedByName = "ToProductDTO")
-    @Named("ToProductDTOs")
-    public abstract List<ProductDTO> toDTOs(List<Product> components);
+	public ProductDTO toDto(Product product) {
+		return modelMapper.map(product, ProductDTO.class);
+	}
 
 }
-
-*/

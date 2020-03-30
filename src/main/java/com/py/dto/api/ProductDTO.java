@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.py.dto.PageDTO;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -14,19 +13,16 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ProductDTO implements Serializable {
+public class ProductDTO extends BaseDTO implements Serializable {
 
 	private static final long serialVersionUID = -2775746332178047291L;
-	
-	@JsonProperty("page")
-	PageDTO pageDTO;
-	
+
 	@JsonProperty("id")
 	private Long id;
 
 	@JsonProperty("code")
 	private String code;
-	
+
 	@JsonProperty("name")
 	private String name;
 

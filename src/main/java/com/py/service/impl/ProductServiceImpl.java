@@ -4,25 +4,26 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-//import com.py.dto.mapper.ProductMapper;
-//import com.py.util.AppUtils;
-import com.py.exception.BadRequestException;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import com.py.constant.GlobalConstant;
-import com.py.dto.PageDTO;
+import com.py.constant.Global;
 import com.py.dto.api.FavouriteDTO;
+import com.py.dto.api.ProductByCategoryDTO;
 import com.py.dto.api.ProductDTO;
+import com.py.dto.mapper.PageMapper;
+import com.py.dto.mapper.ProductMapper;
+import com.py.entity.Category;
 import com.py.entity.Picture;
 import com.py.entity.Product;
+import com.py.exception.BadRequestException;
+import com.py.repository.CategoryRepository;
 import com.py.repository.PictureRepository;
 import com.py.repository.ProductRepository;
 import com.py.service.ProductService;
@@ -39,16 +40,16 @@ public class ProductServiceImpl implements ProductService {
 	private ProductRepository productRepository;
 
 	@Autowired
+	private CategoryRepository categoryRepository;
+
+	@Autowired
 	private PictureRepository pictureRepository;
 
 	@Autowired
-	private ModelMapper modelMapper;
+	private ProductMapper productMapper;
 
-//	@Autowired
-//	private AppUtils appUtils;
-
-//	@Autowired
-//	private ProductMapper productMapper;
+	@Autowired
+	private PageMapper pageMapper;
 
 	public List<Product> findAll() {
 		return productRepository.findAll();
@@ -60,15 +61,8 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public Page<Product> findByCategory(Long code, Pageable pageable) {
-		Product product = new Product();
-		product.setCategoryId(code);
-		return productRepository.findAll(Example.of(product), pageable);
-	}
-
-	@Override
 	public Optional<ProductDTO> findProductDetailById(Long id, Pageable pageable) {
-		
+
 		Optional<Product> productOpt = productRepository.findById(id);
 		if (!productOpt.isPresent()) {
 			return Optional.empty();
@@ -80,8 +74,9 @@ public class ProductServiceImpl implements ProductService {
 		productDTO.setPictures(pictures.stream().map(Picture::getName).collect(Collectors.toList()));
 
 		// Finding reference product for current product
-		List<Product> productList = productRepository.findReferByCategoryId(product.getId(), product.getCategoryId(),
-				pageable);
+		Long pId = product.getId();
+		Long ctgId = product.getCategoryId();
+		List<Product> productList = productRepository.findReferByCategoryId(pId, ctgId, pageable);
 		List<ProductDTO> productDTOList = new ArrayList<>();
 		productList.forEach(v -> productDTOList.add(buildDTO(v, 5)));
 		productDTO.setProductRefs(productDTOList);
@@ -93,20 +88,20 @@ public class ProductServiceImpl implements ProductService {
 		if (categoryId == null) {
 			throw new BadRequestException("Category is null"); // for test ... will be remove in feature
 		}
-		//return productRepository.findAllByCategoryId(categoryId, appUtils.getPageable(page, size, null, null)).map(productMapper::toDTO);
+		// return productRepository.findAllByCategoryId(categoryId,
+		// appUtils.getPageable(page, size, null, null)).map(productMapper::toDTO);
 		return null;
 	}
-	
+
 	@Override
 	public Optional<FavouriteDTO> findFavouriteProducts(Pageable pageable) {
 
-		Page<Product> pageData = productRepository.findByRating(GlobalConstant.FAVOURITE_STAR, pageable);
+		Page<Product> pageData = productRepository.findByRating(Global.FAVOURITE_STAR, pageable);
 		if (CollectionUtils.isEmpty(pageData.getContent())) {
 			return Optional.empty();
 		}
 		FavouriteDTO favouriteDTO = new FavouriteDTO();
-		PageDTO page = modelMapper.map(pageData, PageDTO.class);
-		favouriteDTO.setPage(page);
+		favouriteDTO.setPage(pageMapper.toDto(pageData));
 		List<ProductDTO> productDTOList = new ArrayList<>();
 		pageData.getContent().forEach(v -> productDTOList.add(buildDTO(v, 5)));
 		favouriteDTO.setProducts(productDTOList);
@@ -114,7 +109,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	private ProductDTO buildDTO(Product product, int sold) {
-		ProductDTO productDTO = modelMapper.map(product, ProductDTO.class);
+		ProductDTO productDTO = productMapper.toDto(product);
 		productDTO.setSold(sold); // hard code here
 		Float discount = product.getDiscount();
 		BigDecimal price = product.getCostPrice();
@@ -123,6 +118,15 @@ public class ProductServiceImpl implements ProductService {
 		productDTO.setSalePrice(salePrice);
 		log.debug("price: {} - sale price: {} - type: {} - discount: {}", price, salePrice, discountType, discount);
 		return productDTO;
+	}
+
+	@Override
+	public Optional<ProductByCategoryDTO> findByCategory(Pageable pageable) {
+		List<Category> categoryList = categoryRepository.findAll();
+		Set<Long> idList = categoryList.stream().map(Category::getId).collect(Collectors.toSet());
+		List<Product> productList = productRepository.findByCategoryIdIn(idList);
+		log.info("size: {}", productList.size());
+		return null;
 	}
 
 	public static void main(String[] args) {
