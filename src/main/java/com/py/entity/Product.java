@@ -3,6 +3,9 @@ package com.py.entity;
 import java.math.BigDecimal;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -27,6 +30,10 @@ public class Product extends BaseEntity {
 	private Integer rating;
 	private Integer quantity;
 	private Long supplierId;
-	private Long categoryId;
+//	private Long categoryId;
 	private Integer version;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "category_id", referencedColumnName = "id")
+	private Category category;
 }

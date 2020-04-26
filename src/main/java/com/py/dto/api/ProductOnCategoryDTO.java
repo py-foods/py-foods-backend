@@ -12,17 +12,17 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ProductByCategoryDTO extends BaseDTO implements Serializable {
+public class ProductOnCategoryDTO implements Serializable {
 
 	private static final long serialVersionUID = -9174831166287622607L;
 
 	@JsonProperty("category_id")
-	private String categoryId;
+	private Long categoryId;
 
-	@JsonProperty("category")
-	private String category;
+	@JsonProperty("category_name")
+	private String categoryName;
 
 	@JsonProperty("products")
-	private transient List<ProductDTO> products;
+	private List<ProductDTO> products;
 
 }

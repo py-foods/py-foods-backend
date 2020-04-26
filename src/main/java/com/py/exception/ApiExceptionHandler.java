@@ -5,11 +5,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-public class ExceptionController {
+public class ApiExceptionHandler {
 
 	@ExceptionHandler(GenericException.class)
-	public ResponseEntity<ResponseModal> handleGenericExceptions(GenericException ex) {
-		ResponseModal error = new ResponseModal(ex.getStatus(), ex.getMessage());
+	public ResponseEntity<ErrorResponse> handleGenericExceptions(GenericException ex) {
+		ErrorResponse error = new ErrorResponse(ex.getStatus(), ex.getMessage());
 		return ResponseEntity.status(ex.getStatus()).body(error);
 	}
 }

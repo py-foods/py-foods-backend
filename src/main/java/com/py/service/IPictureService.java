@@ -10,7 +10,7 @@ import java.util.List;
  * @author vmdat
  * @create 19/03/2020
  */
-public interface PictureService {
+public interface IPictureService {
 
 	Picture uploadPicture(MultipartFile file, String name);
 

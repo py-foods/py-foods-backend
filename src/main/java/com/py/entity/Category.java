@@ -1,6 +1,12 @@
 package com.py.entity;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,4 +20,16 @@ public class Category extends BaseEntity {
 	private String name;
 	private String description;
 	private String parentCode;
+
+	@OneToMany(mappedBy = "category", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+	private Set<Product> products;
+
+	public Category() {
+		products = new HashSet<>();
+	}
+
+	public Category(String name) {
+		this.name = name;
+		products = new HashSet<>();
+	}
 }

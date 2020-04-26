@@ -3,7 +3,7 @@ package com.py.exception;
 public abstract class GenericException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
-	protected int status = 500;
+	protected int status;
 
 	protected String code;
 

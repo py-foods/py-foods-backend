@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class ResponseModal {
+public class ErrorResponse {
 	private List<ErrorField> errors = new LinkedList<>();
 	private int code;
 	private String message;
@@ -14,7 +14,7 @@ public class ResponseModal {
 	/**
 	 *
 	 */
-	public ResponseModal() {
+	public ErrorResponse() {
 		super();
 	}
 
@@ -22,7 +22,7 @@ public class ResponseModal {
 	 *
 	 * @param msg
 	 */
-	public ResponseModal(String msg) {
+	public ErrorResponse(String msg) {
 		this.code = 200;
 		this.message = msg;
 	}
@@ -32,7 +32,7 @@ public class ResponseModal {
 	 * @param code
 	 * @param msg
 	 */
-	public ResponseModal(int code, String msg) {
+	public ErrorResponse(int code, String msg) {
 		this.code = code;
 		this.message = msg;
 	}

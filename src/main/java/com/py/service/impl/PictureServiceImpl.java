@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.py.entity.Picture;
-import com.py.service.PictureService;
+import com.py.service.IPictureService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Service
-public class PictureServiceImpl implements PictureService {
+public class PictureServiceImpl implements IPictureService {
 
 	private Cloudinary cloudinary;
 
