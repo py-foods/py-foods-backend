@@ -27,6 +27,7 @@ import com.py.exception.BadRequestException;
 import com.py.exception.BussinessException;
 import com.py.exception.ResourceNotFoundException;
 import com.py.service.IProductService;
+import com.py.util.AppUtils;
 
 @RestController
 @RequestMapping(path = "api/products")
@@ -44,14 +45,13 @@ public class ProductController {
 	 * @throws BussinessException
 	 */
 	@GetMapping(path = "{id}")
-	public ResponseEntity<ProductDTO> getProduct(@PathVariable Optional<Long> id) {
-
-		if (!id.isPresent()) {
+	public ResponseEntity<ProductDTO> getProduct(@PathVariable Optional<String> id) {
+		Long requestId = AppUtils.parseLong(id.orElse(null));
+		if (requestId == null) {
 			throw new BadRequestException("productId is not present!!!");
 		}
 		Pageable pageable = PageRequest.of(0, PRODUCTS_ON_REFERENCE_SIZE);
-		Optional<ProductDTO> productOpt = productService.findProductDetailById(id.get(), pageable);
-		ProductDTO productDTO = productOpt.get();
+		ProductDTO productDTO = productService.findProductDetailById(requestId, pageable);
 		productDTO.setStatus(Status.OK);
 		return ResponseEntity.ok(productDTO);
 	}
@@ -64,12 +64,15 @@ public class ProductController {
 	 * @throws BussinessException
 	 */
 	@GetMapping(path = "favourite")
-	public ResponseEntity<FavouriteDTO> getFavouriteProducts(@RequestParam(value = "page") Optional<Integer> page) {
-		PageRequest pageRequest = PageRequest.of(page.orElse(0), PRODUCTS_ON_CATEGORY_SIZE);
-		Optional<FavouriteDTO> favouriteOpt = productService.findFavouriteProducts(pageRequest);
-		FavouriteDTO favouriteDto = favouriteOpt.get();
-		favouriteDto.setStatus(Status.OK);
-		return ResponseEntity.ok(favouriteDto);
+	public ResponseEntity<FavouriteDTO> getFavouriteProducts(@RequestParam(value = "page") Optional<String> page) {
+		Integer requestId = AppUtils.parseInt(page.orElse("0"));
+		if (requestId == null) {
+			throw new BadRequestException("productId is not present!!!");
+		}
+		PageRequest pageRequest = PageRequest.of(requestId, PRODUCTS_ON_CATEGORY_SIZE);
+		FavouriteDTO favouriteDTO = productService.findFavouriteProducts(pageRequest);
+		favouriteDTO.setStatus(Status.OK);
+		return ResponseEntity.ok(favouriteDTO);
 	}
 
 	/**
@@ -80,8 +83,7 @@ public class ProductController {
 	@GetMapping
 	public ResponseEntity<List<ProductOnCategoryDTO>> getProducts() {
 		Pageable pageable = PageRequest.of(0, 4, Sort.Direction.DESC, "createdDate");
-		List<ProductOnCategoryDTO> products = productService.findProductsForIndex(pageable);
-		return ResponseEntity.ok(products);
+		return ResponseEntity.ok(productService.findProductsForIndex(pageable));
 
 	}
 

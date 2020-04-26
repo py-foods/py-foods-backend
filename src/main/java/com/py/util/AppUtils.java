@@ -12,14 +12,30 @@ import org.springframework.stereotype.Component;
 @Component
 public class AppUtils {
 
+	private static final Integer PAGE_DEFAULT = 12;
 
-    private static final Integer PAGE_DEFAULT = 12;
+	public Pageable getPageable(Integer page, Integer size, String field, Boolean isDesc) {
+		if (field == null || field.isEmpty() || isDesc == null) {
+			return PageRequest.of(page == null ? 0 : page, size == null ? PAGE_DEFAULT : size);
+		}
+		return PageRequest.of(page == null ? 0 : page, size == null ? PAGE_DEFAULT : size,
+				isDesc ? Sort.Direction.DESC : Sort.Direction.ASC, field);
+	}
 
-    public Pageable getPageable(Integer page, Integer size, String field, Boolean isDesc) {
-        if (field == null || field.isEmpty() || isDesc == null) {
-            return PageRequest.of(page == null ? 0 : page, size == null ? PAGE_DEFAULT : size);
-        }
-        return PageRequest.of(page == null ? 0 : page, size == null ? PAGE_DEFAULT : size,
-                isDesc ? Sort.Direction.DESC : Sort.Direction.ASC, field);
-    }
+	public static Long parseLong(String val) {
+		try {
+			return Long.parseLong(val);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	public static Integer parseInt(String val) {
+		try {
+			return Integer.parseInt(val);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
 }

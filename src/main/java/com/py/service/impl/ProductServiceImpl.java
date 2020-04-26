@@ -55,12 +55,7 @@ public class ProductServiceImpl implements IProductService {
 	}
 
 	@Override
-	public Optional<Product> findById(Long id) {
-		return productRepository.findById(id);
-	}
-
-	@Override
-	public Optional<ProductDTO> findProductDetailById(Long id, Pageable pageable) {
+	public ProductDTO findProductDetailById(Long id, Pageable pageable) {
 
 		Optional<Product> productOpt = productRepository.findById(id);
 		if (!productOpt.isPresent()) {
@@ -82,10 +77,10 @@ public class ProductServiceImpl implements IProductService {
 			productList.forEach(v -> productDTOList.add(productMapper.toDto(v, 5)));
 			productDTO.setProductRefs(productDTOList);
 		} catch (Exception e) {
-			log.error("findProductDetailById ERROR: ", e);
+			log.error("ERROR: ", e);
 			throw new BussinessException(e.getMessage());
 		}
-		return Optional.of(productDTO);
+		return productDTO;
 	}
 
 	@Override
@@ -99,7 +94,7 @@ public class ProductServiceImpl implements IProductService {
 	}
 
 	@Override
-	public Optional<FavouriteDTO> findFavouriteProducts(Pageable pageable) {
+	public FavouriteDTO findFavouriteProducts(Pageable pageable) {
 
 		Page<Product> productPage = productRepository.findByRating(Global.FAVOURITE_STAR, pageable);
 		if (productPage.isEmpty()) {
@@ -115,7 +110,7 @@ public class ProductServiceImpl implements IProductService {
 		} catch (Exception e) {
 			throw new BussinessException(e.getMessage());
 		}
-		return Optional.ofNullable(favouriteDTO);
+		return favouriteDTO;
 	}
 
 	@Override
