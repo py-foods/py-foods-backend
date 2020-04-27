@@ -1,7 +1,8 @@
 package com.py.controller.api;
 
-import static com.py.constant.Global.PRODUCTS_ON_CATEGORY_SIZE;
-import static com.py.constant.Global.PRODUCTS_ON_REFERENCE_SIZE;
+import static com.py.constant.Constant.INDEX_CATEGORY_SIZE;
+import static com.py.constant.Constant.PRODUCTS_ON_CATEGORY_SIZE;
+import static com.py.constant.Constant.PRODUCTS_ON_REFERENCE_SIZE;
 
 import java.util.List;
 import java.util.Optional;
@@ -82,9 +83,8 @@ public class ProductController {
 	 */
 	@GetMapping
 	public ResponseEntity<List<ProductOnCategoryDTO>> getProducts() {
-		Pageable pageable = PageRequest.of(0, 4, Sort.Direction.DESC, "createdDate");
+		Pageable pageable = PageRequest.of(0, INDEX_CATEGORY_SIZE, Sort.Direction.DESC, "createdDate");
 		return ResponseEntity.ok(productService.findProductsForIndex(pageable));
-
 	}
 
 	/**

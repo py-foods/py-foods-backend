@@ -11,7 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.py.constant.Global;
+import com.py.constant.Constant;
 import com.py.dto.api.FavouriteDTO;
 import com.py.dto.api.ProductDTO;
 import com.py.dto.api.ProductOnCategoryDTO;
@@ -50,6 +50,8 @@ public class ProductServiceImpl implements IProductService {
 	@Autowired
 	private PageMapper pageMapper;
 
+	private static final int ITEMS_SOLD = 10;
+	
 	public List<Product> findAll() {
 		return productRepository.findAll();
 	}
@@ -64,7 +66,7 @@ public class ProductServiceImpl implements IProductService {
 		ProductDTO productDTO = null;
 		try {
 			Product product = productOpt.get();
-			productDTO = productMapper.toDto(product, 10);
+			productDTO = productMapper.toDto(product, ITEMS_SOLD);
 			// Get pictures for product
 			List<Picture> pictures = pictureRepository.findByProductId(product.getId());
 			productDTO.setPictures(pictures.stream().map(Picture::getName).collect(Collectors.toList()));
@@ -74,7 +76,7 @@ public class ProductServiceImpl implements IProductService {
 			Long ctgId = product.getCategory().getId();
 			List<Product> productList = productRepository.findReferByCategoryId(pId, ctgId, pageable);
 			List<ProductDTO> productDTOList = new ArrayList<>();
-			productList.forEach(v -> productDTOList.add(productMapper.toDto(v, 5)));
+			productList.forEach(v -> productDTOList.add(productMapper.toDto(v, ITEMS_SOLD)));
 			productDTO.setProductRefs(productDTOList);
 		} catch (Exception e) {
 			log.error("ERROR: ", e);
@@ -96,7 +98,7 @@ public class ProductServiceImpl implements IProductService {
 	@Override
 	public FavouriteDTO findFavouriteProducts(Pageable pageable) {
 
-		Page<Product> productPage = productRepository.findByRating(Global.FAVOURITE_STAR, pageable);
+		Page<Product> productPage = productRepository.findByRating(Constant.FAVOURITE_STAR, pageable);
 		if (productPage.isEmpty()) {
 			throw new ResourceNotFoundException("favourite product not found!!!");
 		}
@@ -116,9 +118,9 @@ public class ProductServiceImpl implements IProductService {
 	@Override
 	public List<ProductOnCategoryDTO> findProductsForIndex(Pageable pageable) {
 		List<ProductOnCategoryDTO> products = new ArrayList<>();
-		ProductOnCategoryDTO product = new ProductOnCategoryDTO();
 		Page<Category> categoryList = categoryRepository.findAll(pageable);
 		categoryList.forEach(v -> {
+			ProductOnCategoryDTO product = new ProductOnCategoryDTO();
 			product.setCategoryId(v.getId());
 			product.setCategoryName(v.getName());
 			Page<Product> productPage = productRepository.findAllByCategoryId(v.getId(), PageRequest.of(0, 8));

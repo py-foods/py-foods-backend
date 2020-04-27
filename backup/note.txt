@@ -1,0 +1,7 @@
+backup db command line
+# pattern: mysqldump -h remotemysql.com -u [username] -p [database-name] > filename.sql
+ex: mysqldump -h remotemysql.com -u 87Xam2kfai -p 87Xam2kfai > E:\py-foods\py-foods-backend\backup\mydata.sql
+
+IF got error, access denied username because 'when using lock table...'
+Add:  --single-transaction 
+mysqldump --single-transaction -h remotemysql.com -u 87Xam2kfai -p 87Xam2kfai > E:\py-foods\py-foods-backend\backup\mydata.sql

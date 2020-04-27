@@ -1,5 +1,10 @@
 package com.py.util;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -38,4 +43,17 @@ public class AppUtils {
 		}
 	}
 
+	/**
+	 * Convert list object from object type A to object type B by mapping function
+	 * 
+	 * @param source List<S> source object
+	 * @param func mappingFunction
+	 * @return
+	 */
+	public static final <S, T> List<T> toList(List<S> source, Function<S, T> func) {
+		if (source == null || source.isEmpty()) {
+			return Collections.emptyList();
+		}
+		return source.stream().map(func).collect(Collectors.toList());
+	}
 }
