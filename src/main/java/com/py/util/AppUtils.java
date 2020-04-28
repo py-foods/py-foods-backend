@@ -2,6 +2,7 @@ package com.py.util;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -44,16 +45,30 @@ public class AppUtils {
 	}
 
 	/**
-	 * Convert list object from object type A to object type B by mapping function
+	 * Cast a list to another one by mapping function
 	 * 
-	 * @param source List<S> source object
-	 * @param func mappingFunction
+	 * @param source
+	 * @param func
 	 * @return
 	 */
-	public static final <S, T> List<T> toList(List<S> source, Function<S, T> func) {
+	public static final <S, T> List<T> asList(List<S> source, Function<S, T> func) {
 		if (source == null || source.isEmpty()) {
 			return Collections.emptyList();
 		}
 		return source.stream().map(func).collect(Collectors.toList());
+	}
+
+	/**
+	 * Cast a set to another one by mapping function
+	 * 
+	 * @param source
+	 * @param func
+	 * @return
+	 */
+	public static final <S, T> Set<T> asSet(Set<S> source, Function<S, T> func) {
+		if (source == null || source.isEmpty()) {
+			return Collections.emptySet();
+		}
+		return source.stream().map(func).collect(Collectors.toSet());
 	}
 }

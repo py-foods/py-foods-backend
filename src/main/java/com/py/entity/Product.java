@@ -30,10 +30,12 @@ public class Product extends BaseEntity {
 	private Integer rating;
 	private Integer quantity;
 	private Long supplierId;
-//	private Long categoryId;
 	private Integer version;
-	
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "category_id", referencedColumnName = "id")
 	private Category category;
+
+//	@OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+//	private List<Picture> pictures = new ArrayList<>();
 }

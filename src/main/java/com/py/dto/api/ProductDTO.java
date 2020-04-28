@@ -53,6 +53,9 @@ public class ProductDTO extends BaseDTO implements Serializable {
 	@JsonProperty("sold")
 	private Integer sold;
 
+	@JsonProperty("thumbnail")
+	private String thumbnail;
+
 	@JsonProperty("pictures")
 	private transient List<String> pictures;
 

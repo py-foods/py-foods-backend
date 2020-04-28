@@ -26,6 +26,7 @@ import com.py.exception.ResourceNotFoundException;
 import com.py.repository.CategoryRepository;
 import com.py.repository.PictureRepository;
 import com.py.repository.ProductRepository;
+import com.py.service.AppConfig;
 import com.py.service.IProductService;
 import com.py.util.Arith;
 
@@ -50,8 +51,11 @@ public class ProductServiceImpl implements IProductService {
 	@Autowired
 	private PageMapper pageMapper;
 
+	@Autowired
+	private AppConfig appConfig;
+
 	private static final int ITEMS_SOLD = 10;
-	
+
 	public List<Product> findAll() {
 		return productRepository.findAll();
 	}
@@ -67,9 +71,13 @@ public class ProductServiceImpl implements IProductService {
 		try {
 			Product product = productOpt.get();
 			productDTO = productMapper.toDto(product, ITEMS_SOLD);
+
 			// Get pictures for product
-			List<Picture> pictures = pictureRepository.findByProductId(product.getId());
-			productDTO.setPictures(pictures.stream().map(Picture::getName).collect(Collectors.toList()));
+			 List<Picture> pictures = pictureRepository.findByProductId(product.getId());
+			List<String> pictureURLs = pictures
+					.stream().map(v -> appConfig.getPictureURL(v.getName()))
+					.collect(Collectors.toList());
+			productDTO.setPictures(pictureURLs);
 
 			// Finding reference product for current product
 			Long pId = product.getId();
@@ -102,14 +110,14 @@ public class ProductServiceImpl implements IProductService {
 		if (productPage.isEmpty()) {
 			throw new ResourceNotFoundException("favourite product not found!!!");
 		}
-		FavouriteDTO favouriteDTO = null;
+		FavouriteDTO favouriteDTO = new FavouriteDTO();
 		try {
-			favouriteDTO = new FavouriteDTO();
 			favouriteDTO.setPage(pageMapper.toDto(productPage));
 			List<ProductDTO> dtoList = new ArrayList<>();
-			productPage.getContent().forEach(v -> dtoList.add(productMapper.toDto(v, 5)));
+			productPage.getContent().forEach(v -> dtoList.add(productMapper.toDto(v, ITEMS_SOLD)));
 			favouriteDTO.setProducts(dtoList);
 		} catch (Exception e) {
+			log.error("Retrieve favourite products got ERROR: {}", e);
 			throw new BussinessException(e.getMessage());
 		}
 		return favouriteDTO;
@@ -123,6 +131,7 @@ public class ProductServiceImpl implements IProductService {
 			ProductOnCategoryDTO product = new ProductOnCategoryDTO();
 			product.setCategoryId(v.getId());
 			product.setCategoryName(v.getName());
+			// hard code as 8 products per category
 			Page<Product> productPage = productRepository.findAllByCategoryId(v.getId(), PageRequest.of(0, 8));
 			product.setProducts(productMapper.toList(productPage.getContent()));
 			products.add(product);

@@ -11,7 +11,8 @@ import org.springframework.stereotype.Component;
 
 import com.py.dto.api.ProductDTO;
 import com.py.entity.Product;
-import com.py.util.PriceUtil;
+import com.py.service.AppConfig;
+import com.py.util.PriceUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,14 +23,18 @@ public class ProductMapper {
 	@Autowired
 	private ModelMapper modelMapper;
 
+	@Autowired
+	private AppConfig appConfig;
+
 	public ProductDTO toDto(Product source, int sold) {
 		ProductDTO targetDto = modelMapper.map(source, ProductDTO.class);
 		targetDto.setSold(sold); // hard code here
 		Float discount = source.getDiscount();
 		BigDecimal price = source.getCostPrice();
 		String discountType = source.getDiscountType();
-		BigDecimal salePrice = PriceUtil.getSalePrice(price, discountType, discount);
+		BigDecimal salePrice = PriceUtils.getSalePrice(price, discountType, discount);
 		targetDto.setSalePrice(salePrice);
+		targetDto.setThumbnail(appConfig.getPictureURL(source.getThumbnail()));
 		log.debug("price: {} - sale price: {} - type: {} - discount: {}", price, salePrice, discountType, discount);
 		return targetDto;
 	}

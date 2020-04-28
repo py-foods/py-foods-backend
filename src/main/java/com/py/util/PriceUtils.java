@@ -4,9 +4,9 @@ import java.math.BigDecimal;
 
 import com.py.constant.DiscountType;
 
-public class PriceUtil {
+public class PriceUtils {
 
-	private PriceUtil() {
+	private PriceUtils() {
 	}
 
 	public static BigDecimal getSalePrice(BigDecimal price, String discountType, Float discount) {

@@ -22,14 +22,5 @@ public class Category extends BaseEntity {
 	private String parentCode;
 
 	@OneToMany(mappedBy = "category", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-	private Set<Product> products;
-
-	public Category() {
-		products = new HashSet<>();
-	}
-
-	public Category(String name) {
-		this.name = name;
-		products = new HashSet<>();
-	}
+	private Set<Product> products = new HashSet<>();
 }
