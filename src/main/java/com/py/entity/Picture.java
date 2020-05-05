@@ -1,6 +1,9 @@
 package com.py.entity;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,10 +17,13 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 public class Picture extends BaseEntity {
 
+	private static final long serialVersionUID = -4981640750658803558L;
+
 	private String url;
 	private String name;
-	private Long productId;
-//	@ManyToOne(fetch = FetchType.LAZY)
-//	@JoinColumn(name = "product_id", referencedColumnName = "id")
-//	private Product product;
+	private Boolean isActive;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "product_id")
+	private Product product;
 }

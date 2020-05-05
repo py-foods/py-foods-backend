@@ -1,22 +1,25 @@
 package com.py.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.py.dto.api.FavouriteDTO;
 import com.py.dto.api.ProductDTO;
 import com.py.dto.api.ProductOnCategoryDTO;
 import com.py.entity.Product;
-import com.py.exception.BussinessException;
 
 public interface IProductService {
 
+	Optional<Product> findById(Long id);
+	
 	List<Product> findAll();
-
-	ProductDTO findProductDetailById(Long id, Pageable pageable);
-
+	
+	List<ProductDTO> search(String query, Long categoryId, Pageable pageable);
+				
+	List<Product> findReferByCategoryId(Long id, Long categoryId, Pageable pageable);
+	
 	/**
 	 * Find all products with rating > 4
 	 * 
@@ -24,9 +27,9 @@ public interface IProductService {
 	 * @return
 	 * @throws BussinessException
 	 */
-	FavouriteDTO findFavouriteProducts(Pageable pageable);
+	Page<Product> findFavouriteProducts(Pageable pageable);
 
 	List<ProductOnCategoryDTO> findProductsForIndex(Pageable pageable);
-
-	Page<ProductDTO> productList(Long categoryId, Integer page, Integer size, String field, Boolean isDesc);
+	
+	Page<Product> findByCategoryId(Long id, Pageable pageable);
 }

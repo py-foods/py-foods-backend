@@ -1,9 +1,8 @@
 package com.py.entity;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
@@ -16,11 +15,13 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 public class Category extends BaseEntity {
 
+	private static final long serialVersionUID = -2856074491878061012L;
+	
 	private String code;
 	private String name;
 	private String description;
 	private String parentCode;
 
-	@OneToMany(mappedBy = "category", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-	private Set<Product> products = new HashSet<>();
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
+	private List<Product> products = new ArrayList<>(0);
 }

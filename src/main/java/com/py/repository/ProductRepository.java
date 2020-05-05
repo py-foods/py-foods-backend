@@ -23,7 +23,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 	@Query(value = "select * from product p where p.rating > :level and p.is_active = 1", nativeQuery = true)
 	public Page<Product> findByRating(@Param("level") Integer level, Pageable pageable);
 
-	Page<Product> findAllByCategoryId(Long categoryId, Pageable pageable);
+	@Query(value = "select * from product p where p.category_id = :categoryId and p.is_active = 1", nativeQuery = true)
+	Page<Product> findAllByCategoryId(@Param("categoryId") Long categoryId, Pageable pageable);
 
 	List<Product> findByCategoryIdIn(Set<Long> idList);
 }

@@ -36,11 +36,11 @@ public class AppUtils {
 		}
 	}
 
-	public static Integer parseInt(String val) {
+	public static Integer parseInt(String val, Integer defaultValue) {
 		try {
 			return Integer.parseInt(val);
 		} catch (Exception e) {
-			return null;
+			return defaultValue;
 		}
 	}
 

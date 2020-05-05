@@ -4,6 +4,7 @@ package com.py.dto.mapper;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,9 @@ public class ProductMapper {
 	private AppConfig appConfig;
 
 	public ProductDTO toDto(Product source, int sold) {
+		
 		ProductDTO targetDto = modelMapper.map(source, ProductDTO.class);
+		
 		targetDto.setSold(sold); // hard code here
 		Float discount = source.getDiscount();
 		BigDecimal price = source.getCostPrice();
@@ -35,6 +38,12 @@ public class ProductMapper {
 		BigDecimal salePrice = PriceUtils.getSalePrice(price, discountType, discount);
 		targetDto.setSalePrice(salePrice);
 		targetDto.setThumbnail(appConfig.getPictureURL(source.getThumbnail()));
+		// filter only picture URLs
+		List<String> pictureURLs = source.getPictures()
+				.stream().map(v -> appConfig.getPictureURL(v.getName()))
+				.collect(Collectors.toList());
+		targetDto.setPictureURLs(pictureURLs);
+		
 		log.debug("price: {} - sale price: {} - type: {} - discount: {}", price, salePrice, discountType, discount);
 		return targetDto;
 	}

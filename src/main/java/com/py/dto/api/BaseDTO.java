@@ -1,7 +1,7 @@
 package com.py.dto.api;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.py.constant.Status;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.py.dto.PageDTO;
 
 import lombok.Getter;
@@ -12,6 +12,6 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class BaseDTO {
 
-	private Status status;
-	private PageDTO page;
+	@JsonProperty("page")
+	PageDTO page;
 }

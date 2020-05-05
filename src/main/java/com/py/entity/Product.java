@@ -1,19 +1,24 @@
 package com.py.entity;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@Entity
+@Entity(name = "product")
 @EqualsAndHashCode(callSuper = false)
 public class Product extends BaseEntity {
+
+	private static final long serialVersionUID = -1816187449312271791L;
 
 	private String code;
 	private String name;
@@ -33,9 +38,13 @@ public class Product extends BaseEntity {
 	private Integer version;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "category_id", referencedColumnName = "id")
+	@JoinColumn(name = "category_id", nullable = false)
 	private Category category;
+	
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "product")
+	private List<OrderDetail> orderDetails = new ArrayList<>(0);
+	
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "product")
+	private List<Picture> pictures = new ArrayList<>(0);
 
-//	@OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
-//	private List<Picture> pictures = new ArrayList<>();
 }

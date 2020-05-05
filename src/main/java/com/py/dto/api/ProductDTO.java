@@ -20,6 +20,10 @@ public class ProductDTO extends BaseDTO implements Serializable {
 	@JsonProperty("id")
 	private Long id;
 
+
+	@JsonProperty("category_id")
+	private Long categoryId;
+
 	@JsonProperty("code")
 	private String code;
 
@@ -56,8 +60,8 @@ public class ProductDTO extends BaseDTO implements Serializable {
 	@JsonProperty("thumbnail")
 	private String thumbnail;
 
-	@JsonProperty("pictures")
-	private transient List<String> pictures;
+	@JsonProperty("picture_urls")
+	private transient List<String> pictureURLs;
 
 	@JsonProperty("product_refs")
 	private transient List<ProductDTO> productRefs;

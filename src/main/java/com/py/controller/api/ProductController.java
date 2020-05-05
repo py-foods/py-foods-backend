@@ -1,17 +1,19 @@
 package com.py.controller.api;
 
-import static com.py.constant.Constant.INDEX_CATEGORY_SIZE;
 import static com.py.constant.Constant.PRODUCTS_ON_CATEGORY_SIZE;
 import static com.py.constant.Constant.PRODUCTS_ON_REFERENCE_SIZE;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,16 +21,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.py.constant.Status;
-import com.py.constant.UrlConfig;
+import com.py.constant.Constant;
 import com.py.dto.api.FavouriteDTO;
 import com.py.dto.api.ProductDTO;
 import com.py.dto.api.ProductOnCategoryDTO;
-import com.py.exception.BadRequestException;
-import com.py.exception.BussinessException;
-import com.py.exception.ResourceNotFoundException;
+import com.py.dto.mapper.PageMapper;
+import com.py.dto.mapper.ProductMapper;
+import com.py.entity.Category;
+import com.py.entity.Product;
+import com.py.exception.EntityNotFoundException;
+import com.py.service.ICategoryService;
 import com.py.service.IProductService;
-import com.py.util.AppUtils;
 
 @RestController
 @RequestMapping(path = "api/products")
@@ -37,6 +40,15 @@ public class ProductController {
 	@Autowired
 	private IProductService productService;
 
+	@Autowired
+	private ICategoryService categoryService;
+	
+	@Autowired
+	private ProductMapper productMapper;
+
+	@Autowired
+	private PageMapper pageMapper;
+	
 	/**
 	 * 
 	 * @param productId
@@ -46,15 +58,26 @@ public class ProductController {
 	 * @throws BussinessException
 	 */
 	@GetMapping(path = "{id}")
-	public ResponseEntity<ProductDTO> getProduct(@PathVariable Optional<String> id) {
-		Long requestId = AppUtils.parseLong(id.orElse(null));
-		if (requestId == null) {
-			throw new BadRequestException("productId is not present!!!");
+	public ResponseEntity<ProductDTO> getProduct(@PathVariable Long id) {
+		
+		Product product = productService.findById(id)
+				.orElseThrow(() -> new EntityNotFoundException(Product.class, "id", String.valueOf(id)));
+		try {
+			ProductDTO productDto = productMapper.toDto(product, Constant.ITEMS_SOLD);
+			// Finding reference product for current product		
+			Long pId = product.getId();
+			Long ctgId = product.getCategory().getId();
+			PageRequest pageRequest = PageRequest.of(0, PRODUCTS_ON_REFERENCE_SIZE);
+			List<Product> productList = productService.findReferByCategoryId(pId, ctgId, pageRequest);
+			
+			List<ProductDTO> productRefers = new ArrayList<>();
+			productList.forEach(v -> productRefers.add(productMapper.toDto(v, Constant.ITEMS_SOLD)));
+			productDto.setProductRefs(productRefers);
+			// build response data
+			return ResponseEntity.ok(productDto);
+		} catch(Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
-		Pageable pageable = PageRequest.of(0, PRODUCTS_ON_REFERENCE_SIZE);
-		ProductDTO productDTO = productService.findProductDetailById(requestId, pageable);
-		productDTO.setStatus(Status.OK);
-		return ResponseEntity.ok(productDTO);
 	}
 
 	/**
@@ -65,15 +88,19 @@ public class ProductController {
 	 * @throws BussinessException
 	 */
 	@GetMapping(path = "favourite")
-	public ResponseEntity<FavouriteDTO> getFavouriteProducts(@RequestParam(value = "page") Optional<String> page) {
-		Integer requestId = AppUtils.parseInt(page.orElse("0"));
-		if (requestId == null) {
-			throw new BadRequestException("productId is not present!!!");
-		}
-		PageRequest pageRequest = PageRequest.of(requestId, PRODUCTS_ON_CATEGORY_SIZE);
-		FavouriteDTO favouriteDTO = productService.findFavouriteProducts(pageRequest);
-		favouriteDTO.setStatus(Status.OK);
-		return ResponseEntity.ok(favouriteDTO);
+	public FavouriteDTO getFavouriteProducts(
+			@RequestParam(required = false, defaultValue = "0") Integer page,
+			@RequestParam(required = false, defaultValue = "8") Integer size) {
+		
+		PageRequest pageRequest = PageRequest.of(page, size);
+		Page<Product> productPage = productService.findFavouriteProducts(pageRequest);
+		FavouriteDTO favouriteDTO = new FavouriteDTO();
+		List<ProductDTO> favourites = new ArrayList<>();		
+		productPage.getContent().forEach(v -> favourites.add(productMapper.toDto(v, Constant.ITEMS_SOLD)));
+		favouriteDTO.setProducts(favourites);
+		// build response data
+		favouriteDTO.setPage(pageMapper.toDto(productPage));
+		return favouriteDTO;
 	}
 
 	/**
@@ -81,10 +108,29 @@ public class ProductController {
 	 * @param page
 	 * @return
 	 */
-	@GetMapping
-	public ResponseEntity<List<ProductOnCategoryDTO>> getProducts() {
-		Pageable pageable = PageRequest.of(0, INDEX_CATEGORY_SIZE, Sort.Direction.DESC, "createdDate");
-		return ResponseEntity.ok(productService.findProductsForIndex(pageable));
+	@GetMapping(path = "index")
+	public List<ProductOnCategoryDTO> getIndexProducts(
+			@RequestParam(required = false, defaultValue = "0") Integer page,
+			@RequestParam(required = false, defaultValue = "4") Integer size,
+			@RequestParam(required = false) String sort) {
+
+		Direction direction = "asc".equals(sort) ? Sort.Direction.ASC : Sort.Direction.DESC;
+		PageRequest pageRequest = PageRequest.of(page, size, direction, "createdDate");
+		Page<Category> categoryPage = categoryService.findAll(pageRequest);
+
+		List<ProductOnCategoryDTO> products = new ArrayList<>();
+		categoryPage.getContent().forEach(v -> {
+			ProductOnCategoryDTO product = new ProductOnCategoryDTO();
+			product.setCategoryId(v.getId());
+			product.setCategoryName(v.getName());
+			// hard code as 8 products per category
+			Page<Product> productPage = productService.findByCategoryId(v.getId(),
+					PageRequest.of(0, PRODUCTS_ON_CATEGORY_SIZE));
+			product.setProducts(productMapper.toList(productPage.getContent()));
+			products.add(product);
+		});
+		// build response data
+		return products;
 	}
 
 	/**
@@ -93,9 +139,20 @@ public class ProductController {
 	 * @param page
 	 * @return
 	 */
-	@GetMapping(UrlConfig.LIST + UrlConfig.PRODUCT)
-	public Page<ProductDTO> getListProduct(@RequestParam("category") String category,
-			@RequestParam(required = false) Integer page) {
-		return null;
+	@GetMapping
+	public ProductOnCategoryDTO getListProductByCategory(
+			@RequestParam(required = true) Long category,
+			@RequestParam(required = false) String sort,
+			@RequestParam(required = false, defaultValue = "0") Integer page,
+			@RequestParam(required = false, defaultValue = "8") Integer size) {
+		
+		Direction direction = "asc".equals(sort) ? Sort.Direction.ASC : Sort.Direction.DESC;
+		PageRequest pageRequest = PageRequest.of(page, size, direction, "created_date");
+		Page<Product> productPage = productService.findByCategoryId(category, pageRequest);
+		
+		ProductOnCategoryDTO productOnCategory = new ProductOnCategoryDTO();
+		productOnCategory.setPage(pageMapper.toDto(productPage));
+		productOnCategory.setProducts(productMapper.toList(productPage.getContent()));
+		return productOnCategory;
 	}
 }
