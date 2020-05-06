@@ -10,9 +10,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.py.config.AppConfig;
 import com.py.dto.api.ProductDTO;
 import com.py.entity.Product;
-import com.py.service.AppConfig;
 import com.py.util.PriceUtils;
 
 import lombok.extern.slf4j.Slf4j;

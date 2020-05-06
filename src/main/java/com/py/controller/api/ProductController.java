@@ -4,19 +4,19 @@ import static com.py.constant.Constant.PRODUCTS_ON_CATEGORY_SIZE;
 import static com.py.constant.Constant.PRODUCTS_ON_REFERENCE_SIZE;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -58,26 +58,23 @@ public class ProductController {
 	 * @throws BussinessException
 	 */
 	@GetMapping(path = "{id}")
-	public ResponseEntity<ProductDTO> getProduct(@PathVariable Long id) {
+	public ProductDTO getProduct(@PathVariable Long id) {
 		
 		Product product = productService.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException(Product.class, "id", String.valueOf(id)));
-		try {
-			ProductDTO productDto = productMapper.toDto(product, Constant.ITEMS_SOLD);
-			// Finding reference product for current product		
-			Long pId = product.getId();
-			Long ctgId = product.getCategory().getId();
-			PageRequest pageRequest = PageRequest.of(0, PRODUCTS_ON_REFERENCE_SIZE);
-			List<Product> productList = productService.findReferByCategoryId(pId, ctgId, pageRequest);
-			
-			List<ProductDTO> productRefers = new ArrayList<>();
-			productList.forEach(v -> productRefers.add(productMapper.toDto(v, Constant.ITEMS_SOLD)));
-			productDto.setProductRefs(productRefers);
-			// build response data
-			return ResponseEntity.ok(productDto);
-		} catch(Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-		}
+
+		ProductDTO productDto = productMapper.toDto(product, Constant.ITEMS_SOLD);
+		// Finding reference product for current product		
+		Long pId = product.getId();
+		Long ctgId = product.getCategory().getId();
+		PageRequest pageRequest = PageRequest.of(0, PRODUCTS_ON_REFERENCE_SIZE);
+		List<Product> productList = productService.findReferByCategoryId(pId, ctgId, pageRequest);
+		
+		List<ProductDTO> productRefers = new ArrayList<>();
+		productList.forEach(v -> productRefers.add(productMapper.toDto(v, Constant.ITEMS_SOLD)));
+		productDto.setProductRefs(productRefers);
+		// build response data
+		return productDto;
 	}
 
 	/**
@@ -142,7 +139,7 @@ public class ProductController {
 	@GetMapping
 	public ProductOnCategoryDTO getListProductByCategory(
 			@RequestParam(required = true) Long category,
-			@RequestParam(required = false) String sort,
+			@RequestParam(required = true) String sort,
 			@RequestParam(required = false, defaultValue = "0") Integer page,
 			@RequestParam(required = false, defaultValue = "8") Integer size) {
 		
@@ -154,5 +151,10 @@ public class ProductController {
 		productOnCategory.setPage(pageMapper.toDto(productPage));
 		productOnCategory.setProducts(productMapper.toList(productPage.getContent()));
 		return productOnCategory;
+	}
+	
+	@PostMapping(path = "submit")
+	public void submit(@RequestBody @Valid ProductDTO product) {
+		System.out.println(product.getCode());
 	}
 }

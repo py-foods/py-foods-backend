@@ -7,6 +7,8 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +28,10 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.py.controller.api.ApiError;
+import com.py.controller.api.ApiSubError;
 
 @ControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
 
     // 400
@@ -35,15 +39,17 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(final MethodArgumentNotValidException ex, final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
         logger.info(ex.getClass().getName());
-        //
-        final List<String> errors = new ArrayList<>();
+        
+        final List<ApiSubError> subErrors = new ArrayList<>();
         for (final FieldError error : ex.getBindingResult().getFieldErrors()) {
-            errors.add(error.getField() + ": " + error.getDefaultMessage());
+            // errors.add(error.getField() + ": " + error.getDefaultMessage());
+            subErrors.add(new ApiSubError(error.getField(), error.getRejectedValue(), error.getDefaultMessage()));
         }
         for (final ObjectError error : ex.getBindingResult().getGlobalErrors()) {
-            errors.add(error.getObjectName() + ": " + error.getDefaultMessage());
+            // errors.add(error.getObjectName() + ": " + error.getDefaultMessage());
+        	subErrors.add(new ApiSubError(error.getObjectName(), error.getDefaultMessage()));
         }
-        final ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errors);
+        final ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Validation errors", subErrors, null);
         return handleExceptionInternal(ex, apiError, headers, apiError.getStatus(), request);
     }
 
@@ -58,6 +64,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
         for (final ObjectError error : ex.getBindingResult().getGlobalErrors()) {
             errors.add(error.getObjectName() + ": " + error.getDefaultMessage());
         }
+        
         final ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errors);
         return handleExceptionInternal(ex, apiError, headers, apiError.getStatus(), request);
     }
